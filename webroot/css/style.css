@@ -1,0 +1,131 @@
+#mapa {
+    width: 411px;
+    height: 631px;
+    position: relative;
+    background: url('/senseui/img/planta.png');
+    margin: 0 auto;
+}
+
+.b11, .b12, .b13, .b14, .b21, .b22, .b23, .b31, .b32, .b33, .b41, .b42, .b51, .b52, .b53, .b61, .b62, .b63, .b71, .b72, .b81 {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    display: block;
+    background: red;
+    border-radius: 500px;
+    box-shadow: 1px 0px 4px 8px red;
+    opacity: .4;
+    display:none;
+}
+
+.b11 {
+    top: 464px;
+    left: 344px;    
+}
+
+.b12 {
+    top: 464px;
+    left: 187px;
+}
+
+.b13 {
+    top: 144px;
+    left: 187px;
+}
+
+.b14 {
+    top: 146px;
+    left: 344px;
+}
+
+.b21 {
+    top: 341px;
+    left: 37px;
+}
+
+.b22 {
+    top: 387px;
+    left: 24px;
+}
+
+.b23 {
+    top: 390px;
+    left: 75px;
+}
+
+.b31 {
+    top: 268px;
+    left: 37px;
+}
+
+.b32 {
+    top: 225px;
+    left: 24px;
+}
+
+.b33 {
+    top: 224px;
+    left: 74px;
+}
+
+.b41 {
+    top: 563px;
+    left: -10px;
+}
+
+.b42 {
+    top: 563px;
+    left: 10px;
+}
+
+.b51 {
+    top: 100px;
+    left: 28px;
+}
+
+.b52 {
+    top: 125px;
+    left: 28px;
+}
+
+.b53 {
+    top: 150px;
+    left: 28px;
+}
+
+.b61 {
+    top: 267px;
+    left: 370px;
+}
+
+.b62 {
+    top: 267px;
+    left: 345px;
+}
+
+.b63 {
+    top: 267px;
+    left: 320px;
+}
+
+.b71 {
+    top: 300px;
+    left: 115px;
+}
+
+.b72 {
+    top: 325px;
+    left: 115px;
+}
+
+.b81 {
+    top: 453px;
+    left: 50px;
+}
+
+#dados {
+    display: none;
+}
+
+#slider-range{width:100%;}
+#slider-range,#time{margin:10px;display:block;}
