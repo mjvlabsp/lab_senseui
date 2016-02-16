@@ -299,7 +299,7 @@ class DataController extends AppController
         foreach($sensors as $key => $name) {
             $last_read = $this->Log->find('all', ['conditions' =>  ['sensor_id'    =>  $key], 'order'  =>  ['id'   =>  'DESC']])->first();
             $last_values[] = [$last_read, $name];
-            //$last_values[$key] = 
+            //$last_values[$key] =                         
         }
         
         $this->set(compact('last_values'));
@@ -309,34 +309,33 @@ class DataController extends AppController
         $dados = $dados->first();
         */
     }
+    
+    /*============================================================================================================================================================
+                                                    FUNÇÃO DE TEMPO REAL, COM IMPLEMENTAÇÃO DO ALGORITMO DE ERRO
+    ==============================================================================================================================================================*/
         function realTimeJson() {
-        $begin = strtotime('now');
-        $this->viewBuilder()->layout('ajax');
-        $this->loadModel('Sensors');
-        $this->loadModel('Log');
-        $this->loadModel('Parameters');
-        $sensor_list = $this->Sensors->find('all');
+        $begin = strtotime('now'); // DETERMINA TEMPO INICIAL
+        //$this->viewBuilder()->layout('ajax');
+        $this->loadModel('Sensors');// CARREGA MODELOS DO SENSOR
+        $this->loadModel('Log');//CARREGA MODELOS DE LOG
+        $this->loadModel('Parameters');//CARREGA MODELOS DE PARAMETROS
+        $sensor_list = $this->Sensors->find('all');//ARMAZENA TODOS OS VALORES DOS SENSORES NA LISTA
         $sensors = array();
         foreach($sensor_list as $s) {
             //$sensors[$s->id] = $s->name . ' - ' . $s->location;
-            $sensors[$s->id] = $s->location;
+            $sensors[$s->id] = $s->location;//POPULA SENSORES[ID_SENSORES]=LOCALIZAÇÃO
         }
         $last_values = array();
-        
-        
-        //var_dump($date);
-        //var_dump($date2);
-        
-        $params = $this->Parameters->find('all');
-        $higher_time = -2;
+        $params = $this->Parameters->find('all');//COLETA TODOS OS VALORES DOS PARAMETROS
+        $higher_time = 0;
         foreach($params as $p) {
-            if($p->error_time > $higher_time) { $higher_time = $p->error_time; }
+            if($p->error_time > $higher_time) //VERIFICA OS VALORES RECEBIDOS DE PARAMETROS
+                $higher_time = $p->error_time; //ARMAZENA O MAIOR VALOR DE PARAMETRO PARA SERVIR COMO BASE
         }
+        var_dump($higher_time);
         foreach($sensors as $key => $name) {
-            
-            
-            $date = date('Y-m-d H:i:s',strtotime('now'));
-            $date2 = date('Y-m-d H:i:s',strtotime('-3 days')); // -param->error_time senconds    
+            $date = date('Y-m-d H:i:s',strtotime('now')); //COLETA DATA ATUAL. TEMPO REAL. CASO QUEIRA TESTES, MODIFICAR ESTA VARIÁVEL
+            $date2 = date('Y-m-d H:i:s',strtotime('-'.$higher_time.'seconds')); // -param->error_time senconds    
             
             $last_read = $this->Log->find('all', ['order'  =>  ['id'   =>  'DESC']])
             ->where([
@@ -371,7 +370,8 @@ class DataController extends AppController
             $last_values[] = [$name, $dados];
             //$last_values[$key] = 
         }
-        
+        var_dump($date);
+        var_dump($date2);
         $end = strtotime('now');
         echo "<pre>";
         var_dump($last_values);
@@ -388,11 +388,12 @@ class DataController extends AppController
             }
             $i++;
         }
+       */ 
+       //echo json_encode($json);
+       $json = '';
+        $this->set(compact('json'));
         
-       echo json_encode($json);
-        //$this->set(compact('json'));
-        
-        */
+    
         
     }
 
