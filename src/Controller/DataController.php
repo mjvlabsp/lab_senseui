@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\I18n\Time;
 
 /**
  * Data Controller
@@ -220,7 +221,7 @@ class DataController extends AppController
                             $sensor_id = $sensor_id->first()->id;
                             $value = $info['value'];
                             $logdata = array(
-                                'sensor_id' =>  $sensor_id,
+                                'sensor_id' =>  (int)$sensor_id,
                                 'value' =>  $value
                             );
                             
@@ -314,90 +315,96 @@ class DataController extends AppController
                                                     FUNÇÃO DE TEMPO REAL, COM IMPLEMENTAÇÃO DO ALGORITMO DE ERRO
     ==============================================================================================================================================================*/
         function realTimeJson() {
+        $this->viewBuilder()->layout('ajax');
         $begin = strtotime('now'); // DETERMINA TEMPO INICIAL
-        //$this->viewBuilder()->layout('ajax');
+        
         $this->loadModel('Sensors');// CARREGA MODELOS DO SENSOR
         $this->loadModel('Log');//CARREGA MODELOS DE LOG
         $this->loadModel('Parameters');//CARREGA MODELOS DE PARAMETROS
         $sensor_list = $this->Sensors->find('all');//ARMAZENA TODOS OS VALORES DOS SENSORES NA LISTA
         $sensors = array();
+        $numero_sensores = 0;
         foreach($sensor_list as $s) {
-            //$sensors[$s->id] = $s->name . ' - ' . $s->location;
-            $sensors[$s->id] = $s->location;//POPULA SENSORES[ID_SENSORES]=LOCALIZAÇÃO
+            $sensors_name[$s->id] = $s->name;
+            $sensors_location[$s->id] = $s->location;//POPULA SENSORES[ID_SENSORES]=LOCALIZAÇÃO
+            $estado[$s->id] = false;
+            $instante_inicial_true[$s->id] = new Time("now");
+            $instante_inicial_false[$s->id] = new Time("now");
+            $instante_analisado_true[$s->id] = new Time("now");
+            $instante_analisado_false[$s->id] = new Time("now");
+            $numero_sensores = $numero_sensores + 1;
         }
         $last_values = array();
         $params = $this->Parameters->find('all');//COLETA TODOS OS VALORES DOS PARAMETROS
         $higher_time = 0;
+        $max = [];
+        $min =[];
+        $ultimo_valor_lido = [];
+        $error_time = [];
         foreach($params as $p) {
+            $max[$p->sensor_id] = $p->max;
+            $min[$p->sensor_id] = $p->min;
+            $error_time[$p->sensor_id] = $p->error_time;
             if($p->error_time > $higher_time) //VERIFICA OS VALORES RECEBIDOS DE PARAMETROS
                 $higher_time = $p->error_time; //ARMAZENA O MAIOR VALOR DE PARAMETRO PARA SERVIR COMO BASE
         }
-        var_dump($higher_time);
-        foreach($sensors as $key => $name) {
-            $date = date('Y-m-d H:i:s',strtotime('now')); //COLETA DATA ATUAL. TEMPO REAL. CASO QUEIRA TESTES, MODIFICAR ESTA VARIÁVEL
-            $date2 = date('Y-m-d H:i:s',strtotime('-'.$higher_time.'seconds')); // -param->error_time senconds    
-            
-            $last_read = $this->Log->find('all', ['order'  =>  ['id'   =>  'DESC']])
-            ->where([
-                'created BETWEEN :start AND :end'
-            ])
-            ->bind(':start', $date2, 'date')
-            ->bind(':end',   $date, 'date');
-            
-            /*
-            ->bind(':start', new \DateTime($date2), 'date')
-            ->bind(':end',   new \DateTime($date), 'date');
-            *///->limit(3);
-            $data = $last_read->toArray();
-            
-            $dados = [];
-            //var_dump($last_read->to);
-            foreach($data as $dado) {
-                
-                
-                
-                $param = $this->Parameters->find('all')->where(['sensor_id'   =>  $dado->sensor_id])->first();
-                
-                
-                if($dado->value >= $param->min && $dado->value <= $param->max ) {
-                    $dados[] = ['created'   =>  $dado->created, 'value' =>  $dado->value, 'valid'   =>  true];    
-                } else {
-                    $dados[] = ['created'   =>  $dado->created, 'value' =>  $dado->value, 'valid'   =>  false];
+        $date = date('Y-m-d H:i:s',strtotime('now')); //COLETA DATA ATUAL. TEMPO REAL. CASO QUEIRA TESTES, MODIFICAR ESTA VARIÁVEL
+        $date2 = date('Y-m-d H:i:s',strtotime('-'.($higher_time*2).'seconds')); // -param->error_time senconds    
+        $last_read = $this->Log->find('all', ['order'  =>  ['id'   =>  'DESC']])
+        ->where([
+        'created BETWEEN :start AND :end'
+        ])
+        ->bind(':start', $date2, 'date')
+        ->bind(':end',   $date, 'date');
+        $data = $last_read->toArray();
+        $dados = [];
+        foreach($data as $key => $dado) {
+            $sid = ($dado->sensor_id);
+            //=========================DADO VALIDO=========================================
+            if($dado->value >=$min[$sid]  && $dado->value <= $max[$sid] ) {
+                if (empty($estado[$sid]) || $estado[$sid] == false){
+                    $instante_inicial_true[$sid] = $dado->created;
                 }
-                
-            }
-            //$last_values[] = [$name, $data[1]->created];
-            $last_values[] = [$name, $dados];
-            //$last_values[$key] = 
-        }
-        var_dump($date);
-        var_dump($date2);
-        $end = strtotime('now');
-        echo "<pre>";
-        var_dump($last_values);
-        echo "</pre>";
-        
-        /*
-        $json = [];
-        $i = 0;
-        foreach($last_values as $lv) {
-            if(!is_null($lv[0])) {
-                $json[$i] = [$lv[1], $lv[0]->value, $lv[0]->created->toUnixString()];        
+                $instante_analisado_true[$sid] = $dado->created;
+                $estado[$sid] = true;
+                $diff = $instante_analisado_true[$sid]->diff($instante_inicial_true[$sid]);
+                $janela_tempo[$sid] = $diff->s;
+                $ultimo_valor_lido[$sid] = $dado->value;
+                if ($janela_tempo[$sid] > $error_time[$sid]){
+                    $dados[] = ['sid' => $sid,'janela' => $janela_tempo[$sid],'max' => $max[$sid],'min' => $min[$sid],'sensor_id' => $sid,'name' => $sensors_name[$sid],'location' => $sensors_location[$sid],'created'   =>  $dado->created, 'value' =>  $ultimo_valor_lido[$sid], 'valid'   =>  true];    
+                }   
+            //=========================DADO INVALIDO=======================================
             } else {
-                $json[$i] = [$lv[1], null, null];
+                if ($estado[$sid] == true){
+                    $instante_inicial_false[$sid] = $dado->created;
+                }
+                $estado[$sid] = false;
+                $instante_analisado_false[$sid] = $dado->created;
+                $diff = $instante_analisado_false[$sid]->diff($instante_inicial_false[$sid]);
+                $janela_tempo[$sid] = $diff->s;
+                $ultimo_valor_lido[$sid] = $dado->value;
+                if ($janela_tempo[$sid] > $error_time[$sid]){
+                    $dados[] = ['sid' => $sid, 'janela' => $janela_tempo[$sid],'max' => $max[$sid],'min' => $min[$sid],'sensor_id' => $sid,'name' => $sensors_name[$sid],'location' => $sensors_location[$sid],'created'   =>  $dado->created, 'value' =>  $ultimo_valor_lido[$sid], 'valid'   =>  false];    
+                    }
             }
-            $i++;
         }
-       */ 
-       //echo json_encode($json);
-       $json = '';
-        $this->set(compact('json'));
+        $end = strtotime('now');
+        $total_process = $end - $begin;
+        $tamanho_vetor = sizeof($dados);
+        $k = 0;
+        $json_final = [];
+        while($k < $numero_sensores-1){
+            $json_final[$k] = $dados[$tamanho_vetor-$k-1]; 
+            $k = $k + 1;    
+        }
+        $this->set(compact('json_final'));
         
     
         
     }
 
     function realTime() {
+        $this->viewBuilder()->layout('widget');
         $this->loadModel('Sensors');
         $sensor_list = $this->Sensors->find('all');
         $sensors = array();

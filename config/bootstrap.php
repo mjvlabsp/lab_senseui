@@ -97,7 +97,7 @@ mb_internal_encoding(Configure::read('App.encoding'));
  * Set the default locale. This controls how dates, number and currency is
  * formatted and sets the default language to use for translations.
  */
-ini_set('intl.default_locale', 'en_US');
+ini_set('intl.default_locale', 'pt_BR');
 
 /**
  * Register application error and exception handlers.
@@ -139,6 +139,8 @@ Email::configTransport(Configure::consume('EmailTransport'));
 Email::config(Configure::consume('Email'));
 Log::config(Configure::consume('Log'));
 Security::salt(Configure::consume('Security.salt'));
+
+//Cache::disable();
 
 /**
  * The default crypto extension in 3.0 is OpenSSL.

@@ -4,9 +4,9 @@
 
 function getData(args) {
     
-    var id = location.pathname.split('/')[4]; 
+    var id = location.pathname.split('/')[3]; 
     $.ajax({
-        url: "http://applejuice.mjvmobile.com.br/senseui/data/calibration_ajax/"+id,
+        url: "/data/calibration_ajax/"+id,
         context: document.body,
         dataType: "JSON",
         cache: false

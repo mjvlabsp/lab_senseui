@@ -1,0 +1,100 @@
+/* =============================================================================
+   NORMALIZATION
+========================================================================== */
+
+*  {
+  margin: 0;
+  padding: 0;
+}
+
+article, aside, details, figcaption, figure, footer, header, hgroup, nav, section { display: block; }
+[hidden] { display: none; }
+
+ul, ol {
+    list-style: none;
+}
+
+html, body {
+    min-height: calc(100%);
+}
+
+/* Gridster styles */
+.demo {
+    background: #eee;
+    width: 100%;
+    height: calc(100%);
+}
+
+.gridster {
+    width: 100%;
+    margin: 0 auto;
+}
+
+.gridster .gs-w {
+    background: #FFF;
+    cursor: pointer;
+    -webkit-box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+}
+
+.gridster .player {
+    -webkit-box-shadow: 3px 3px 5px rgba(0,0,0,0.3);
+    box-shadow: 3px 3px 5px rgba(0,0,0,0.3);
+}
+
+
+.gridster .preview-holder {
+    border: none!important;
+    border-radius: 0!important;
+    background: rgba(255,255,255,.2)!important;
+}
+
+
+/* =========================================================*/
+
+
+
+#content {
+    height: calc(100%);
+    background-color: #eee;
+}
+
+.navbar-gray {
+    background: #eee;
+    color: #999;
+}
+
+.coverup {
+    position: fixed !important;
+    bottom: 40px;
+    right: 40px;
+    z-index: 999;
+}
+
+.coverup:hover {
+    box-shadow: 3px 3px 9px 0px #999 !important;
+    color: #f00 !important;
+}
+
+.panel {
+    height: 90%;
+}
+
+.panel button {
+    margin-top: 7px;
+    margin-right: 12px;
+
+}
+
+.panel-body {
+    height: calc(100%);
+    overflow: hidden;
+}
+
+.widget_inside {
+    overflow: hidden;
+}
+
+iframe{
+    overflow:hidden;
+}
