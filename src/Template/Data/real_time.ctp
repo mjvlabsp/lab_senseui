@@ -41,10 +41,10 @@
                 cache: false
             }).done(function(response) {
                 $('.b11, .b12, .b13, .b14, .b21, .b22, .b23, .b31, .b32, .b33, .b41, .b42, .b51, .b52, .b53, .b61, .b62, .b63, .b71, .b72, .b81').hide();
-                console.log(response);
+                //console.log(response);
                 $.each(response, function(data){
-                    console.log(data);
-                    console.log(response[data][2]);
+                    //console.log(data);
+                    //console.log(response[data][2]);
                     var d = new Date();
                     var n = d.getTime();
                     n = n/1000;
@@ -146,11 +146,11 @@
                 $('.b81').show();
             }
             
-            console.log(n - data[2]);
+            //console.log(n - data[2]);
             console.log(data[1]);
-            console.log(data[0]);
+            //console.log(data[0]);
         }
         
-        setInterval(getPoints, 2000);
+        setInterval(getPoints, 30000);
         
     </script>
